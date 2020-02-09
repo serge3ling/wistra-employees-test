@@ -1,0 +1,17 @@
+body {
+    color: #6c6;
+    background-color: #344;
+    font-family: sans;
+}
+
+#emp-table tr:hover {
+    background-color: #455;
+}
+
+#controls-table td {
+    padding-right: 50px;
+}
+
+.sel-row {
+    color: #cfc;
+}
