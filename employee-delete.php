@@ -1,6 +1,6 @@
 <?php
-require_once("Db.php");
-require_once("EmployeeDeleteQuery.php");
+require_once("dao/Db.php");
+require_once("dao/EmployeeDeleteQuery.php");
 
 if (isset($_POST["id"]) === true) {
     $db = Db::getInstance();

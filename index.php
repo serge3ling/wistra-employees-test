@@ -16,15 +16,15 @@
 
 <td>
 <p>
-<input id="given-name" type="text" placeholder="Ім'я"/>
+<input id="given-name" type="text" placeholder="Ім'я" disabled/>
 </p>
 <p>
-<input id="family-name" type="text" placeholder="Прізвище"/>
+<input id="family-name" type="text" placeholder="Прізвище" disabled/>
 </p>
 <p>
 <select id="role-modify-sel">
 <?php
-require_once("RolesView.php");
+require_once("view/RolesView.php");
 echo (new RolesView())->getView();
 ?>
 </select>
@@ -63,7 +63,7 @@ echo (new RolesView())->getView();
 <tbody id="emp-tbody">
 
 <?php
-require_once("EmployeesEchoView.php");
+require_once("view/EmployeesEchoView.php");
 (new EmployeesEchoView())->makeEcho();
 ?>
 

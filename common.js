@@ -55,6 +55,8 @@ function selectRowByRadio(radio) {
         for (var i = 0; i < btns.length; i++) {
             btns[i].disabled = false;
         }
+        document.getElementById("family-name").disabled = false;
+        document.getElementById("given-name").disabled = false;
         
         var givenName = elm.getElementsByClassName("given-td")[0].innerHTML;
         var familyName = elm.getElementsByClassName("family-td")[0].innerHTML;
@@ -87,6 +89,23 @@ function selectRowByRadio(radio) {
     }
 }
 
+function tableContains(familyName, givenName) {
+    var result = false;
+    
+    var rows = document.getElementById("emp-tbody").getElementsByTagName("tr");
+    
+    for (var i = 0; i < rows.length; i++) {
+        var currentFamilyName = rows[i].getElementsByClassName("family-td")[0].innerHTML;
+        var currentGivenName = rows[i].getElementsByClassName("given-td")[0].innerHTML;
+        if (currentFamilyName == familyName && currentGivenName == givenName) {
+            result = true;
+            break;
+        }
+    }
+    
+    return result;
+}
+
 function addEmployee() {
     document.getElementById("given-name").value = "";
     document.getElementById("family-name").value = "";
@@ -98,6 +117,8 @@ function addEmployee() {
         btns[i].disabled = true;
         btns[i].style.display = "none";
     }
+    document.getElementById("family-name").disabled = false;
+    document.getElementById("given-name").disabled = false;
     document.getElementById("emp-summary").innerHTML = empSummaryNew;
     
     document.getElementById("add-emp-yes").style.display = "inline-block";
@@ -116,11 +137,59 @@ function addEmployeeNo() {
     document.getElementById("add-emp").style.display = "inline-block";
     
     document.getElementById("emp-summary").innerHTML = empSummaryNothing;
+    
+    document.getElementById("given-name").value = "";
+    document.getElementById("family-name").value = "";
+    document.getElementById("given-name").value = "";
+    document.getElementById("family-name").disabled = true;
+    document.getElementById("given-name").disabled = true;
 }
 
 function addEmployeeYes() {
-    
+    insertEmployee();
     addEmployeeNo();
+}
+
+function insertEmployee() {
+    var givenName = document.getElementById("given-name").value;
+    var familyName = document.getElementById("family-name").value;
+    var roleModifySel = document.getElementById("role-modify-sel");
+    var opts = roleModifySel.getElementsByTagName("option");
+    var role = opts[roleModifySel.selectedIndex].dataset.role;
+    
+    var goOn = true;
+    if (givenName == "" || familyName == "") {
+        goOn = false;
+        alert("Ім'я і прізвище мають бути заповнені.");
+    }
+    
+    if (goOn === true) {
+        if (tableContains(familyName, givenName)) {
+            goOn = confirm("Користувач на ім'я " + givenName + " "
+                    + familyName + " вже є. Продовжити?");
+        }
+    }
+    
+    if (goOn === true) {
+        if (confirm("Додати працівника (" + givenName + " " + familyName
+                + ") до бази даних?")) {
+            var formData = new FormData();
+            formData.set("family_name", familyName);
+            formData.set("given_name", givenName);
+            formData.set("role", role);
+            
+            var request = new XMLHttpRequest();
+            
+            request.onreadystatechange = function () {
+                if (request.readyState == 4) {
+                    refreshEmployees();
+                }
+            }
+            
+            request.open("POST", "employee-insert.php", true);
+            request.send(formData);
+        }
+    }
 }
 
 function modifyEmployee() {
@@ -151,7 +220,31 @@ function modifyEmployee() {
     }
     
     if (goOn === true) {
-        ;
+        if (tableContains(familyName, givenName)) {
+            goOn = confirm("Користувач на ім'я " + givenName + " "
+                    + familyName + " вже є. Продовжити?");
+        }
+    }
+    
+    if (goOn === true) {
+        if (confirm("Зберегти зміни в базі даних?")) {
+            var formData = new FormData();
+            formData.set("id", document.getElementsByClassName("sel-row")[0].dataset.id);
+            formData.set("family_name", familyName);
+            formData.set("given_name", givenName);
+            formData.set("role", role);
+            
+            var request = new XMLHttpRequest();
+            
+            request.onreadystatechange = function () {
+                if (request.readyState == 4) {
+                    refreshEmployees();
+                }
+            }
+            
+            request.open("POST", "employee-update.php", true);
+            request.send(formData);
+        }
     }
 }
 
@@ -186,8 +279,10 @@ function refreshEmployees() {
             for (var i = 0; i < btns.length; i++) {
                 btns[i].disabled = true;
             }
+            document.getElementById("family-name").disabled = true;
+            document.getElementById("given-name").disabled = true;
             
-            document.getElementById("emp-summary").innerHTML = empSummaryNew;
+            document.getElementById("emp-summary").innerHTML = empSummaryNothing;
             document.getElementById("given-name").value = "";
             document.getElementById("family-name").value = "";
             document.getElementById("role-modify-sel").selectedIndex = roleNAIndexVal;
